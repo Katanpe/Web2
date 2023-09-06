@@ -61,18 +61,26 @@ const catPost = async (
     return;
   }
 
-  //const filename = req.file;
-  //const {lat, long} = res.locals.coords;
-  //const {user_id, role} = req.user;
+  console.log(req.file);
+  if (req.file === undefined) {
+    const errorMessage = 'File is missing.';
+    console.log('cat_post validation', errorMessage);
+    return;
+  }
+
+  const body = req.body;
+  const {lat, long} = res.locals.coords;
+  const user_id = (req.user as User).user_id;
+  const user_name = (req.user as User).user_name;
+  const filename = req.file.filename;
 
   try {
     const catId = await addCat({
-      ...req.body,
-      //filename,
-      //lat,
-      //long,
-      //user_id,
-      //role,
+      ...body,
+      filename,
+      lat,
+      long,
+      owner: {user_id, user_name},
     });
     const message: MessageResponse = {
       message: 'Cat added',
@@ -83,9 +91,6 @@ const catPost = async (
     next(error);
   }
 };
-// catPost should use req.file to get filename
-// catPost should use res.locals.coords to get lat and lng (see middlewares.ts)
-// catPost should use req.user to get user_id and role
 
 const catPut = async (
   req: Request<{id: string}, {}, Cat>,

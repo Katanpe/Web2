@@ -30,7 +30,7 @@ passport.use(
       secretOrKey: 'asdf',
     },
     (jwtPayload, done) => {
-      // console.log('payload', jwtPayload);
+      console.log('payload', jwtPayload);
       done(null, jwtPayload);
     }
   )

@@ -34,15 +34,14 @@ const getUser = async (userId: string): Promise<User> => {
 const addUser = async (data: PostUser): Promise<number> => {
   const [headers] = await promisePool.execute<ResultSetHeader>(
     `
-    INSERT INTO sssf_user (user_name, email, role, password) 
-    VALUES (?, ?, ?, ?)
+    INSERT INTO sssf_user (user_name, email, password) 
+    VALUES (?, ?, ?)
     `,
-    [data.user_name, data.email, data.role, data.password]
+    [data.user_name, data.email, data.password]
   );
   if (headers.affectedRows === 0) {
-    throw new CustomError('No users added', 400);
+    throw new CustomError('No users added', 304);
   }
-  console.log(headers.info);
   return headers.insertId;
 };
 
@@ -67,7 +66,7 @@ const deleteUser = async (userId: number): Promise<boolean> => {
     [userId]
   );
   if (headers.affectedRows === 0) {
-    throw new CustomError('No users deleted', 400);
+    throw new CustomError('User not found', 404);
   }
   return true;
 };

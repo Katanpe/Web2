@@ -143,18 +143,19 @@ const userDelete = async (
       throw new CustomError('Admin only', 403);
     }
 
-    const userId = (req.user as User).user_id;
+    const userId = req.params.id;
     const result = await deleteUser(userId);
 
     if (result) {
       res.json({
-        message: 'user modified',
+        message: 'user deleted',
       });
     }
   } catch (error) {
     next(error);
   }
 };
+
 const userDeleteCurrent = async (
   req: Request,
   res: Response,
