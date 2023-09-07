@@ -21,18 +21,14 @@ const catListGet = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const catGet = async (
-  req: Request<{id: number}>,
-  res: Response,
-  next: NextFunction
-) => {
+const catGet = async (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const messages: string = errors
       .array()
       .map((error) => `${error.msg}: ${error.param}`)
       .join(', ');
-    console.log('cat_get validation', messages);
+    console.log('cat_post validation', messages);
     next(new CustomError(messages, 400));
     return;
   }
@@ -61,27 +57,30 @@ const catPost = async (
     return;
   }
 
-  console.log(req.file);
-  if (req.file === undefined) {
-    const errorMessage = 'File is missing.';
-    console.log('cat_post validation', errorMessage);
-    return;
-  }
-
-  const body = req.body;
-  const {lat, long} = res.locals.coords;
-  const user_id = (req.user as User).user_id;
-  const user_name = (req.user as User).user_name;
-  const filename = req.file.filename;
-
   try {
+    if (req.file === undefined) {
+      const errorMessage = 'File is missing.';
+      console.log('cat_post validation', errorMessage);
+      return;
+    }
+
+    const cat_name = req.body.cat_name;
+    const weight = req.body.weight;
+    const birthdate = req.body.birthdate;
+    const {lat, lng} = res.locals.coords;
+    const user_id = (req.user as User).user_id;
+    const filename = req.file.filename;
+
     const catId = await addCat({
-      ...body,
+      cat_name,
+      weight,
+      owner: {user_id},
       filename,
+      birthdate,
       lat,
-      long,
-      owner: {user_id, user_name},
+      lng,
     });
+
     const message: MessageResponse = {
       message: 'Cat added',
       id: catId,

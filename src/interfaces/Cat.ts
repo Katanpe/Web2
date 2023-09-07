@@ -1,5 +1,4 @@
 import {RowDataPacket} from 'mysql2';
-import {User} from './User';
 
 interface Cat {
   cat_id: number;
@@ -8,10 +7,9 @@ interface Cat {
   filename: string;
   birthdate: Date;
   lat: number;
-  long: number;
+  lng: number;
   owner: {
     user_id: number;
-    user_name: string;
   };
 }
 

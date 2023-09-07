@@ -24,7 +24,7 @@ const getAllCats = async (): Promise<Cat[]> => {
   return cats;
 };
 
-const getCat = async (catId: number) => {
+const getCat = async (catId: string) => {
   const [rows] = await promisePool.execute<GetCat[]>(
     `SELECT cat_id, cat_name, weight, filename, birthdate, ST_X(coords) as lat, ST_Y(coords) as lng,
     JSON_OBJECT('user_id', sssf_user.user_id, 'user_name', sssf_user.user_name) as owner FROM sssf_cat JOIN sssf_user ON sssf_cat.owner = sssf_user.user_id
@@ -50,12 +50,13 @@ const addCat = async (data: PostCat): Promise<number> => {
       data.filename,
       data.birthdate,
       data.lat,
-      data.long,
+      data.lng,
     ]
   );
   if (headers.affectedRows === 0) {
     throw new CustomError('No cats added', 400);
   }
+  console.log(headers.info);
   return headers.insertId;
 };
 

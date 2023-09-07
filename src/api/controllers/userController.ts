@@ -10,7 +10,6 @@ import CustomError from '../../classes/CustomError';
 import bcrypt from 'bcryptjs';
 import {PostUser, User} from '../../interfaces/User';
 import {validationResult} from 'express-validator/src/validation-result';
-import MessageResponse from '../../interfaces/MessageResponse';
 const salt = bcrypt.genSaltSync(12);
 
 const userListGet = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,9 +57,9 @@ const userPost = async (
     };
 
     const userId = await addUser(userData);
-    const message: MessageResponse = {
+    const message = {
       message: 'User added',
-      id: userId,
+      user_id: userId,
     };
     res.json(message);
   } catch (error) {
