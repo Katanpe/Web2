@@ -6,7 +6,7 @@ import {
   updateCat,
 } from '../models/catModel';
 import {Request, Response, NextFunction} from 'express';
-import {Cat, PostCat} from '../../interfaces/Cat';
+import {Cat, PostCat, PutCat} from '../../interfaces/Cat';
 import {User} from '../../interfaces/User';
 import CustomError from '../../classes/CustomError';
 import {validationResult} from 'express-validator';
@@ -21,7 +21,11 @@ const catListGet = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-const catGet = async (req: Request, res: Response, next: NextFunction) => {
+const catGet = async (
+  req: Request<{id: number}>,
+  res: Response,
+  next: NextFunction
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const messages: string = errors
@@ -67,14 +71,15 @@ const catPost = async (
     const cat_name = req.body.cat_name;
     const weight = req.body.weight;
     const birthdate = req.body.birthdate;
-    const {lat, lng} = res.locals.coords;
-    const user_id = (req.user as User).user_id;
+    const lat = res.locals.coords[0];
+    const lng = res.locals.coords[1];
+    const owner = (req.user as User).user_id;
     const filename = req.file.filename;
 
     const catId = await addCat({
       cat_name,
       weight,
-      owner: {user_id},
+      owner,
       filename,
       birthdate,
       lat,
@@ -87,12 +92,13 @@ const catPost = async (
     };
     res.json(message);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
 
 const catPut = async (
-  req: Request<{id: string}, {}, Cat>,
+  req: Request<{id: string}, {}, PutCat>,
   res: Response,
   next: NextFunction
 ) => {
@@ -129,21 +135,33 @@ const catPut = async (
 };
 
 const catDelete = async (
-  req: Request<{id: string}>,
+  req: Request<{id: number}, {}, {}>,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const result = await deleteCat((req.body as Cat).cat_id);
-    if (result) {
-      res.json({
-        message: 'cat deleted',
-      });
+    const errors = validationResult(req.params);
+    if (!errors.isEmpty()) {
+      const messages: string = errors
+        .array()
+        .map((error) => `${error.msg}: ${error.param}`)
+        .join(', ');
+      console.log('cat_post validation', messages);
+      next(new CustomError(messages, 400));
+      return;
     }
+
+    const id = req.params.id;
+    await deleteCat(id);
+
+    const message: MessageResponse = {
+      message: 'cat deleted',
+      id: Number(id),
+    };
+    res.json(message);
   } catch (error) {
     next(error);
   }
 };
-// catDelete should use validationResult to validate req.params.id
 
 export {catListGet, catGet, catPost, catPut, catDelete};

@@ -4,13 +4,11 @@ interface Cat {
   cat_id: number;
   cat_name: string;
   weight: number;
+  owner: number;
   filename: string;
   birthdate: Date;
   lat: number;
   lng: number;
-  owner: {
-    user_id: number;
-  };
 }
 
 interface GetCat extends RowDataPacket, Cat {}

@@ -24,7 +24,7 @@ const getAllCats = async (): Promise<Cat[]> => {
   return cats;
 };
 
-const getCat = async (catId: string) => {
+const getCat = async (catId: number) => {
   const [rows] = await promisePool.execute<GetCat[]>(
     `SELECT cat_id, cat_name, weight, filename, birthdate, ST_X(coords) as lat, ST_Y(coords) as lng,
     JSON_OBJECT('user_id', sssf_user.user_id, 'user_name', sssf_user.user_name) as owner FROM sssf_cat JOIN sssf_user ON sssf_cat.owner = sssf_user.user_id
@@ -74,7 +74,7 @@ const updateCat = async (
     ]);
   } else if (role === 'user') {
     sql = promisePool.format(
-      'UPDATE sssf_cat SET ? WHERE cat_id = ? AND user_id = ?;',
+      'UPDATE sssf_cat SET ? WHERE cat_id = ? AND owner = ?;',
       [data, catId, userId]
     );
   } else {
